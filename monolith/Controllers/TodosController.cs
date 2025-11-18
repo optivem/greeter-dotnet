@@ -19,16 +19,58 @@ public class TodosController : ControllerBase
     public async Task<IActionResult> GetTodo(int id)
     {
         var baseUrl = _configuration["ExternalApis:JsonPlaceholder"] ?? "https://jsonplaceholder.typicode.com";
+        var url = $"{baseUrl}/todos/{id}";
         
-        var httpClient = _httpClientFactory.CreateClient();
-        var response = await httpClient.GetAsync($"{baseUrl}/todos/{id}");
+        const int maxRetries = 3;
+        const int retryDelayMs = 1000;
         
-        if (response.IsSuccessStatusCode)
+        for (int attempt = 0; attempt < maxRetries; attempt++)
         {
-            var jsonContent = await response.Content.ReadAsStringAsync();
-            return Content(jsonContent, "application/json");
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var response = await httpClient.GetAsync(url);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonContent = await response.Content.ReadAsStringAsync();
+                    return Content(jsonContent, "application/json");
+                }
+                
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return NotFound(new { message = "Todo not found" });
+                }
+                
+                return StatusCode((int)response.StatusCode, new { message = "Error retrieving todo" });
+            }
+            catch (HttpRequestException e)
+            {
+                if (attempt == maxRetries - 1)
+                {
+                    return StatusCode(
+                        StatusCodes.Status503ServiceUnavailable,
+                        new { message = $"External API is unavailable after {maxRetries} attempts: {e.Message}" }
+                    );
+                }
+                
+                try
+                {
+                    await Task.Delay(retryDelayMs);
+                }
+                catch (TaskCanceledException)
+                {
+                    return StatusCode(
+                        StatusCodes.Status500InternalServerError,
+                        new { message = "Retry interrupted" }
+                    );
+                }
+            }
         }
         
-        return NotFound();
+        return StatusCode(
+            StatusCodes.Status500InternalServerError,
+            new { message = "Unexpected error" }
+        );
     }
 }
