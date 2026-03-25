@@ -32,16 +32,23 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup .NET
+    - name: Setup Runtime
       uses: ./.github/actions/setup-dotnet
       with:
         dotnet-version: 8.0.x
 
-    - name: Build .NET Project
+    - name: Compile Code
       run: dotnet build Optivem.Greeter.Monolith.csproj
       working-directory: monolith
 
-    - name: Publish Docker Image
+    # - name: Run Unit Tests
+    # - name: Run Narrow Integration Tests
+    # - name: Run Component Tests
+    # - name: Run Contract Tests
+    # - name: Run Linter
+    # - name: Run Code Analysis
+
+    - name: Build and Push Artifact
       id: publish
       uses: optivem/publish-docker-image-action@v1
       with:
