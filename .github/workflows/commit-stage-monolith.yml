@@ -76,7 +76,7 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: dotnet format --verify-no-changes
+        run: dotnet format Optivem.Greeter.Monolith.sln --verify-no-changes
         working-directory: monolith
 
       # TODO: Implement
