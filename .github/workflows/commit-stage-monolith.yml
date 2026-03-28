@@ -80,7 +80,7 @@ jobs:
         working-directory: monolith
 
       - name: Run Code Analysis
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run: |
           dotnet tool install --global dotnet-sonarscanner
           dotnet sonarscanner begin /k:"optivem_greeter-dotnet" /o:"optivem" /d:sonar.token="${SONAR_TOKEN}"
