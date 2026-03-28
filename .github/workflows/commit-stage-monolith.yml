@@ -79,9 +79,17 @@ jobs:
         run: dotnet format Optivem.Greeter.Monolith.sln --verify-no-changes
         working-directory: monolith
 
-      # TODO: Implement
       - name: Run Code Analysis
-        run: echo "TODO - not yet implemented"
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /k:"optivem_greeter-dotnet" /o:"optivem" /d:sonar.token="${SONAR_TOKEN}" /d:sonar.host.url="${SONAR_HOST_URL}"
+          dotnet build Optivem.Greeter.Monolith.csproj
+          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+        working-directory: monolith
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
