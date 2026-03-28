@@ -93,11 +93,13 @@ jobs:
         run: dotnet test --filter "FullyQualifiedName~SmokeTests" --verbosity normal
         working-directory: system-test
 
+      # TODO: Implement
       - name: Run Acceptance Tests
-        run: echo "Run Acceptance Tests"
+        run: echo "TODO - not yet implemented"
 
+      # TODO: Implement
       - name: Run External System Contract Tests
-        run: echo "Run External System Contract Tests"
+        run: echo "TODO - not yet implemented"
 
       - name: Run E2E Tests
         run: dotnet test --filter "FullyQualifiedName~E2eTests" --verbosity normal
