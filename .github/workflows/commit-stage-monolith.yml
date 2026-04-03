@@ -50,8 +50,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    env:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
       image-digest-url: ${{ steps.push.outputs.image-digest-url }}
     steps:
@@ -85,15 +83,6 @@ jobs:
 
       - name: Run Linter
         run: dotnet format Optivem.Greeter.Monolith.sln --verify-no-changes
-        working-directory: monolith
-
-      - name: Run Code Analysis
-        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"optivem_greeter-dotnet" /n:"greeter-dotnet" /o:"optivem" /d:sonar.token="${SONAR_TOKEN}"
-          dotnet build Optivem.Greeter.Monolith.csproj
-          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         working-directory: monolith
 
       - name: Read Target Version
